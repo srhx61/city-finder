@@ -59,6 +59,25 @@ app.post('/city', async (req: Request, res: Response) => {
   }
 });
 
+// Backup endpoint - read-only export of all cities as JSON
+app.get('/backup', async (req: Request, res: Response) => {
+  try {
+    const db = await getDatabase();
+    const cities = await db.all<City[]>('SELECT * FROM cities');
+
+    res.json({
+      success: true,
+      count: cities.length,
+      data: cities
+    });
+  } catch (error) {
+    console.error('Error creating backup export:', error);
+    res.status(500).json({
+      error: 'Internal server error while creating backup export'
+    });
+  }
+});
+
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', message: 'City Finder API is running' });
